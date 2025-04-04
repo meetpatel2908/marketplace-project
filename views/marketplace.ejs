@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            max-width: 350px;
+            margin: auto;
+        }
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            background-position: center;
+            background-size: cover;
+        }
+        .card-body {
+            text-align: center;
+        }
+        #main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        .sidebar.open-sidebar + #main-content {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+
+<%- include('./new-navbar') %>
+
+<div id="main-content" class="container mt-4">
+    <h2 class="text-center">Marketplace</h2>
+
+    <select id="categoryFilter" class="form-select">
+        <option value="all">All</option>
+        <option value="electronics">Electronics</option>
+        <option value="home_essentials">Home Essentials</option>
+        <option value="mobiles">Mobiles</option>
+        <option value="instruments">Instruments</option>
+        <option value="fashion">Fashion</option>
+        <option value="books">Books</option>
+        <option value="sports">Sports</option>
+    </select>
+
+    <div class="row mt-4" id="productList">
+        <% products.forEach(product => { %>
+            <div class="col-md-4 product-card" data-category="<%= product.category ? product.category.toLowerCase().trim() : '' %>">
+
+                <div class="card mb-4">
+                    <img src="<%= product.image %>" class="card-img-top" alt="Product Image">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= product.name %></h5>
+                        <p class="card-text">RS: <%= product.price %></p>
+                        <p class="card-text"><%= product.condition %></p>
+                        <p class="card-text"><%= product.description %></p>
+
+                        <!-- Add to Cart Form -->
+                        <form action="/cart/add" method="POST">
+                            <input type="hidden" name="productId" value="<%= product.id %>">
+                            <input type="number" name="quantity" value="1" min="1" class="form-control mb-2">
+                            <button type="submit" class="btn btn-primary">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("✅ DOM Loaded, Script Running!");
+
+        function filterCategory() {
+            let category = document.getElementById("categoryFilter").value.toLowerCase();
+            let cards = document.querySelectorAll(".product-card");
+
+            console.log(`✅ Filtering for category: ${category}`);
+
+            cards.forEach(card => {
+                let cardCategory = card.getAttribute("data-category")?.toLowerCase()?.trim(); 
+
+                if (!cardCategory) {
+                    console.warn("⚠️ Missing category on a product-card! Check EJS file.");
+                    return;
+                }
+
+                if (category === "all" || cardCategory === category) {
+                    card.style.display = "block"; 
+                    console.log(`🟢 Showing: ${cardCategory}`);
+                } else {
+                    card.style.display = "none"; 
+                    console.log(`❌ Hiding: ${cardCategory}`);
+                }
+            });
+        }
+
+        let categoryFilter = document.getElementById("categoryFilter");
+        if (categoryFilter) {
+            categoryFilter.addEventListener("change", filterCategory);
+            console.log("✅ Category filter event listener added!");
+        } else {
+            console.error("❌ Category filter dropdown not found!");
+        }
+    });
+</script>
+
+</body>
+</html>

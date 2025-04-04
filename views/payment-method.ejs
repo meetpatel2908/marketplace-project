@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - <%= method.toUpperCase() %></title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { width: 50%; margin: auto; }
+        input { width: 80%; padding: 10px; margin: 10px 0; }
+        .btn { background-color: #28a745; color: white; padding: 10px; border: none; cursor: pointer; }
+        #main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar.open-sidebar + #main-content {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('./new-navbar') %>
+    <div class="container" id="main-content">
+        <h2>Enter <%= method.toUpperCase() %> Details</h2>
+
+        <% if (method === "credit") { %>
+            <form action="/checkout/complete" method="POST">
+                <input type="text" name="cardNumber" placeholder="Card Number" required>
+                <input type="text" name="expiry" placeholder="Expiry Date (MM/YY)" required>
+                <input type="text" name="cvv" placeholder="CVV" required>
+                <input type="text" name="name" placeholder="Cardholder Name" required><br>
+                <button class="btn btn-success">Proceed</button><br>
+                <a href="/cart" class="btn btn-danger">Cancel Payment</a><br>
+            </form>
+        <% } else if (method === "gpay") { %>
+            <form action="/checkout/complete" method="POST">
+                <input type="text" name="upiId" placeholder="Enter UPI ID" required>
+                <p>OR</p>
+                <img src="/path/to/qr-code.png" alt="Scan QR Code" width="200"><br>
+                <button class="btn btn-success">Proceed</button>
+                <a href="/cart" class="btn btn-danger">Cancel Payment</a><br>
+            </form>
+        <% } else if (method === "cod") { %>
+            <a href="/checkout/complete" class="btn btn-success">Confirm Order</a>
+            <a href="/cart" class="btn btn-danger">Cancel Payment</a><br>
+        <% } %>
+    </div>
+</body>
+</html>

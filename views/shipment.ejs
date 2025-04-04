@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipment Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar.open-sidebar + #main-content {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('./new-navbar') %>
+
+    <div class="container" id="main-content">
+        <h2>Shipment Details</h2>
+        <form action="/checkout/payment" method="POST">
+            <input type="hidden" name="userId" value="<%= user ? user.id : '' %>">
+            <input type="text" name="fullName" placeholder="Full Name" required>
+            <input type="text" name="address" placeholder="Address" required>
+            <input type="text" name="city" placeholder="City" required>
+            <input type="text" name="pincode" placeholder="Pincode" required>
+            <input type="text" name="landmark" placeholder="Nearby Landmark">
+            <input type="text" name="phone" placeholder="Phone Number" required>
+            <button type="submit" class="btn btn-success">Proceed to Payment</button>
+            <a href="/cart" class="btn btn-danger">← Back to Cart</a>
+        </form>
+        
+    </div>
+</body>
+</html>

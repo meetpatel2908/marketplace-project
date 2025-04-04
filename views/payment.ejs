@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Payment Method</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { width: 50%; margin: auto; }
+        .payment-option {
+            display: inline-block;
+            width: 30%;
+            padding: 20px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .payment-option:hover { background-color: #f8f8f8; }
+        #main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar.open-sidebar + #main-content {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('./new-navbar') %>
+    <div class="container" id="main-content">
+        <h2>Select a Payment Method</h2>
+        <a href="/checkout/payment/credit" class="payment-option">💳 Credit/Debit Card</a>
+        <a href="/checkout/payment/gpay" class="payment-option">📲 GPay (UPI)</a>
+        <a href="/checkout/payment/cod" class="payment-option">🚚 Cash on Delivery</a><br>
+        <a href="/cart" class="btn btn-danger">Cancel Payment</a>
+    </div>
+</body>
+</html>

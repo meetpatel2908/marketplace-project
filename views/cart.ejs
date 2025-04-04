@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+           #main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+            padding: 20px;
+        }
+        .sidebar.open-sidebar + #main-content {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+<body>
+
+<%- include('./new-navbar') %>
+
+<div id="main-content" class="container  mt-4">
+    <h2 class="text-center">Your Cart</h2>
+
+    <% if (cart.length === 0) { %>
+        <p class="text-center">Your cart is empty.</p>
+    <% } else { %>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% cart.forEach(item => { %>
+                    <tr>
+                        <td><%= item.product.name %></td>
+                        <td>RS: <%= item.product.price %></td>
+                        <td>
+                            <form action="/cart/update/<%= item.id %>" method="POST" class="d-inline">
+                                <input type="number" name="quantity" value="<%= item.quantity %>" min="1" class="form-control w-50 d-inline">
+                                <button type="submit" class="btn btn-sm btn-warning">Update</button>
+                            </form>
+                        </td>
+                        <td>RS: <%= item.product.price * item.quantity %></td>
+                        <td>
+                            <form action="/cart/remove/<%= item.id %>" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        
+
+        <h4 class="text-end">Total: RS <%= cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0) %></h4>
+        <div class="text-center mt-3">
+            <a href="/shipment" class="btn btn-primary">Proceed to Checkout</a>
+        </div>
+    <% } %>
+</div>
+<script>
+    console.log("User Role:", "<%= role %>");
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* Sidebar Styles */
+        .sidebar {
+            height: 100vh;
+            width: 200px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #343a40;
+            padding-top: 60px;
+            transition: 0.3s;
+        }
+
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+
+        .open-sidebar {
+            left: 0 !important;
+        }
+
+        /* Navbar Styles */
+        .navbar-brand img {
+            height: 40px;
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        #main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar.open-sidebar + #main-content {
+            margin-left: 250px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div id="mySidebar" class="sidebar">
+        <a href="/dashboard">Home</a>
+        <a href="/user-profile">User Profile</a>
+        <a href="/marketplace">Marketplace</a>
+        <a href="/cart">Your Cart</a>
+
+        <% if (typeof role !== "undefined" && role === "SELLER") { %>
+            <a href="/sell">Sell Item</a>
+            <a href="/mysells">My Sells</a>
+        <% } %>
+
+        <% if (typeof role !== "undefined" && role === "ADMIN") { %>
+            <a href="/admin/users">View All Users</a>
+            <a href="/admin/sellers">View All Sellers</a>
+            <a href="/admin/messages/users">Messages from Users</a>
+            <a href="/admin/messages/sellers">Messages from Sellers</a>
+        <% } %>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid d-flex align-items-center">
+            <!-- Sidebar Toggle + Logo -->
+            <div class="d-flex align-items-center">
+                <span class="menu-icon" onclick="toggleSidebar()">☰</span>
+                <a class="navbar-brand ms-2" href="/">
+                    <img src="/images/logo.png" alt="Logo">
+                </a>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar Items -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
+                    
+
+                    <!-- Cart Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="cartDropdown" role="button" data-bs-toggle="dropdown">
+                            Cart (<span id="cart-count">0</span>)
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="cartDropdown">
+                            <li><strong class="dropdown-header">Your Cart</strong></li>
+                            <ul id="cart-items" class="list-group list-group-flush"></ul>
+                        </ul>
+                    </li>
+                    
+
+                    <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+
+                  
+                </ul>
+            </div>
+
+            <!-- Avatar -->
+            <div class="ms-auto">
+                <img src="/images/avatar.png" alt="Avatar" class="avatar" onclick="goToUserProfile()">
+            </div>
+        </div>
+    </nav>
+
+    <!-- JavaScript -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("mySidebar");
+            const mainContent = document.getElementById("main-content");
+
+            sidebar.classList.toggle("open-sidebar");
+
+            // Adjust main content based on sidebar state
+            if (sidebar.classList.contains("open-sidebar")) {
+                mainContent.style.marginLeft = "200px";
+            } else {
+                mainContent.style.marginLeft = "0";
+            }
+        }
+
+        function goToUserProfile() {
+            const role = localStorage.getItem("role"); // ✅ Retrieve role if stored
+            window.location.href = `/user-profile?role=${role}`;
+        }
+
+        // Fetch Cart Data and Show in Dropdown
+        async function loadCart() {
+            console.log("✅ Running loadCart...");
+            const cartList = document.getElementById("cart-items");
+            const cartCount = document.getElementById("cart-count");
+
+            // ❌ Prevents cart from appearing in Dashboard or other pages
+            if (!cartList || !cartCount) {
+                console.warn("🚨 Skipping loadCart() - Cart elements not found!");
+                return;
+            }
+
+            try {
+                const response = await fetch("/cart/data");
+                if (!response.ok) throw new Error("Failed to fetch cart data");
+
+                const cart = await response.json();
+                cartList.innerHTML = "";
+                cartCount.textContent = cart.length;
+
+                if (cart.length === 0) {
+                    cartList.innerHTML = "<li class='dropdown-item text-center'>Your cart is empty.</li>";
+                    return;
+                }
+
+                cart.forEach(item => {
+                    const li = document.createElement("li");
+                    li.className = "dropdown-item d-flex justify-content-between align-items-center";
+                    li.innerHTML = `
+                        ${item.product.name} - ${item.quantity}x
+                        <button class="btn btn-sm btn-danger" onclick="removeFromCart(${item.id})">X</button>
+                    `;
+                    cartList.appendChild(li);
+                });
+
+                console.log("✅ Cart data updated successfully!");
+            } catch (error) {
+                console.error("❌ Error loading cart:", error);
+            }
+        }
+
+        async function removeFromCart(cartId) {
+            try {
+                const response = await fetch(`/cart/remove/${cartId}`, { method: "DELETE" });
+                if (response.ok) {
+                    loadCart();
+                } else {
+                    alert("You must be logged in to remove items.");
+                }
+            } catch (error) {
+                console.error("Error removing item:", error);
+            }
+        }
+
+document.addEventListener("DOMContentLoaded", function () {
+    async function updateCartCount() {
+        try {
+            const response = await fetch("/cart/count"); // Ensure this API route is correct
+            const data = await response.json();
+
+            document.getElementById("cart-count").innerText = data.cartCount || 0;
+
+            const cartItemsList = document.getElementById("cart-items");
+            cartItemsList.innerHTML = ""; // Clear existing items
+
+            if (data.cartItems.length === 0) {
+                cartItemsList.innerHTML = '<li class="list-group-item">Your cart is empty</li>';
+                return;
+            }
+
+            data.cartItems.forEach(item => {
+                const li = document.createElement("li");
+                li.classList.add("list-group-item");
+                li.innerHTML = `${item.product.name} (x${item.quantity}) - Rs.${item.product.price}`;
+                cartItemsList.appendChild(li);
+            });
+        } catch (error) {
+            console.error("Error fetching cart data:", error);
+        }
+    }
+
+    updateCartCount(); // Call on page load
+});
+
+       
+    </script>
+
+</body>
+</html>

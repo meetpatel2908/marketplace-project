@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        .profile-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .navbar {
+            padding: 10px 20px;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<%- include('./new-navbar') %>
+
+<!-- User Profile Section -->
+<div class="container">
+    <div class="profile-container bg-light p-4">
+        <h2>User Profile</h2>
+        <img src="/images/avatar.png" alt="Avatar" class="avatar">
+        <p><strong>Name:</strong> <%= user.name %></p>
+        <p><strong>Email:</strong> <%= user.email %></p>
+        <p><strong>Role:</strong> <%= user.role %></p>
+
+        <a href="/profile/edit" class="btn btn-primary mt-3">Edit Profile</a>
+        <!-- Back to Dashboard Button -->
+        <a href="/dashboard" class="btn btn-primary mt-3">Back to Dashboard</a><br>
+        <!-- Logout Button -->
+        <a href="/logout" class="btn btn-danger mt-3">Logout</a>
+    </div>
+</div>
+<script>
+    console.log("User Role:", "<%= user.role %>"); // ✅ Use 'user.role'
+</script>
+
+
+</body>
+</html>
